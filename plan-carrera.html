@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible">
+    <title>Plan de carrera</title>
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.98.1/css/materialize.min.css">
+    <style>
+        .chip {
+            cursor: pointer;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.2.0/vue.js"></script>
+</head>
+
+<body>
+    <div id='plan' class="container">
+        <p>
+            <span>¿Qué distancia es la que vas a correr?</span>
+            <input type="range" min="5000" max="42195" step="5" v-model="distancia">
+            <span>{{distancia}} metros - {{distanciaEnKilometros}} Km.</span>
+            <br>
+            <div class="chip" v-on:click="distancia=5000">
+                5Km
+            </div>
+            <div class="chip" v-on:click="distancia=10000">
+                10Km
+            </div>
+            <div class="chip" v-on:click="distancia=21097">
+                Media maratón
+            </div>
+            <div class="chip" v-on:click="distancia=42195">
+                Maraton
+            </div>
+        </p>
+        <hr>
+        <p>
+            <span>¿Qué ritmo te has fijado como objetivo?</span>
+            <div class="row">
+                <div class="col s4">
+                    Horas:
+                    <div class="input-field inline">
+                        <input type="number" v-model="ritmo.horas">
+                    </div>
+                </div>
+                <div class="col s4">
+                    Minutos:
+                    <div class="input-field inline">
+                        <input type="number" v-model="ritmo.minutos">
+                    </div>
+                </div>
+                <div class="col s4">
+                    Segundos:
+                    <div class="input-field inline">
+                        <input type="number" v-model="ritmo.segundos">
+                    </div>
+                </div>
+            </div>
+        </p>
+        <hr>
+        <p>
+            <div class="card-panel blue-text text-darken-2">
+                <p>Tu marca final en la prueba de <b>{{distanciaEnKilometros}}</b> Km será de <b>{{marca}}</b></p>
+                <p>¡¡Mucha suerte!! Seguro que cumplirás tus objetivos.</p>
+            </div>
+        </p>
+        <p>Esté será tu plan de carrera si mantienes el ritmo constante:</p>
+        <table class="striped highlight">
+            <thead>
+                <tr>
+                    <th>Distancia (km)</th>
+                    <th>Distancia (mtr.)</th>
+                    <th>Parcial</th>
+                </tr>
+            </thead>
+            <tr v-for="kilometro in planDeCarrera.kilometros">
+                <td>{{ kilometro.distanciaEnKilometros }}</td>
+                <td>{{ kilometro.distancia }}</td>
+                <td>{{ kilometro.parcial }}</td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script>
+    var app = new Vue({
+        el: '#plan',
+        data: {
+            distancia: 10000,
+            ritmo: {
+                horas: 0,
+                minutos: 06,
+                segundos: 00
+            }
+        },
+        methods: {
+        },
+        computed: {
+            distanciaEnKilometros: function () {
+                return this.distancia / 1000
+            },
+            marca: function () {
+                return this.pasoPorKilometro(this.distanciaEnKilometros);
+            },
+            planDeCarrera: function () {
+                var kilometros = [];
+                for (var i = 1; i <= this.distanciaEnKilometros; i++) {
+                    kilometros.push({
+                        distancia: i * 1000,
+                        distanciaEnKilometros: i,
+                        parcial: this.pasoPorKilometro(i)
+                    });
+                }
+                if (this.distanciaEnKilometros % 1 !== 0) {
+                    kilometros.push({
+                        distanciaEnKilometros: this.distanciaEnKilometros,
+                        distancia: this.distancia,
+                        parcial: this.pasoPorKilometro(this.distanciaEnKilometros)
+                    });
+                }
+                return {
+                    kilometros: kilometros
+                };
+            }
+        },
+        methods: {
+            pasoPorKilometro: function (kilometro) {
+                var t = (this.ritmo.horas * 3600) + (this.ritmo.minutos * 60) + (this.ritmo.segundos * 1);
+                t = t * kilometro;
+
+                var h = Math.floor(t / 3600);
+                var m = Math.floor((t - (3600 * h)) / 60);
+                var s = Math.round(t - (3600 * h) - (60 * m));
+
+                // format to string
+                h = (h < 10) ? "0" + h + ":" : h + ":";
+                m = (m < 10) ? "0" + m + ":" : m + ":";
+                s = (s < 10) ? "0" + s : s;
+                return h + m + s;
+            }
+        },
+        components: {
+        }
+    });
+
+</script>
+
+</html>
